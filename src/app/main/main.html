@@ -1,0 +1,11 @@
+<div ng-init="isLocked = true">
+	<div ng-show="!isLoading && isLocked">
+		<div class="padlock is-locked"></div>
+		<input ng-model="lockCode" type="text" id="lockCode" focus="focus"/>
+	</div>
+	<div ng-show="!isLoading && !isLocked">
+		<div class="padlock"></div>
+		<button ng-click="unlock()">Unlock (from inside)</button>
+	</div>
+	<div id="isLoading" ng-show="isLoading"></div>
+</div>

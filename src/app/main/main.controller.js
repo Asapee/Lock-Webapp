@@ -2,31 +2,23 @@
 
 angular.module('lockWebapp')
 	.controller('MainCtrl', function ($scope, $timeout) {
-		$scope.isLoading = false;
-
-		$scope.$watch("lockCode", function (newLockCode) {
-			if (newLockCode && newLockCode.length === 4) {
-				$scope.isLoading = true;
-				Parse.Cloud.run('unlock', { keyCode: newLockCode }, {
-					success: function() {
-						// wrap code in a $timeout so that $digest runs
-						$timeout(function () {
-							$scope.lockCode = "";
-							$scope.isLocked = false;
-							$scope.isLoading = false;
-						});
-					},
-					error: function() {
-						$timeout(function () {
-							$scope.isLocked = true;
-							$scope.isLoading = false;
-						});
-					}
+		var Resource = Parse.Object.extend("Resource");
+		function updateIsDoorOpen () {
+			var query = new Parse.Query(Resource);
+			query.first().then(function (resource) {
+				$timeout(function () {
+					$scope.isDoorOpen = resource.get("isAvailable");
+					$timeout(updateIsDoorOpen, 500);
 				});
-			}
-		});
+			});
+		}
+		updateIsDoorOpen();
 
-		$scope.unlock = function () {
-			$scope.isLocked = true;
+		$scope.lockDoor = function () {
+			var query = new Parse.Query(Resource);
+			query.first().then(function (resource) {
+				resource.set("isAvailable", false);
+				resource.save();
+			});
 		}
 	});
